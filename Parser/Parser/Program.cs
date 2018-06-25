@@ -17,11 +17,12 @@ namespace Parser
     {
         static void Main(string[] args)
         {
-            ParseGipermallArticle("691796");
+            ParseGipermallCategory(400000272);
+            //ParseGipermallArticle(769284);
         }
-        static void ParseGipermallArticle(string id)
+
+        static string GetResponseHtml(string url)
         {
-            string url = "https://gipermall.by/catalog/item_" + id + ".html";
             string html = "";
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
@@ -47,44 +48,117 @@ namespace Parser
                 readStream.Close();
             }
 
+            return html;
+        }
+
+        static void ParseGipermallCategory(int categoryId)
+        {
+            string categoryUrl = "https://gipermall.by/catalog/" + categoryId + ".html";
+
+            int iteration = 2;
+
+            string html = GetResponseHtml(categoryUrl);
+
             HtmlParser parser = new HtmlParser();
-            //Just get the DOM representation
+            var document = parser.Parse(html);
+            var elements = document.QuerySelectorAll("div.products_card");
+            string productUrl = "";
+            while (elements.Count() != 0)
+            {
+                foreach (var element in elements)
+                {
+                    productUrl = element.QuerySelector("a.fancy_ajax").Attributes["href"].Value;
+                    ParseGipermallArticle(productUrl);
+                }
+                iteration++;
+                html = GetResponseHtml(categoryUrl + "?lazy_steep=" + iteration);
+                parser = new HtmlParser();
+                document = parser.Parse(html);
+                elements = document.QuerySelectorAll("div.products_card");
+            }
+            
+        }
+
+        static void ParseGipermallArticle(int id)
+        {
+            string url = "https://gipermall.by/catalog/item_" + id + ".html";
+            ParseGipermallArticle(url);
+        }
+
+        static void ParseGipermallArticle(string url)
+        {
+            string html = GetResponseHtml(url);
+
+            HtmlParser parser = new HtmlParser();
             var document = parser.Parse(html);
 
             string name = document.QuerySelector("div.template_1_columns > h1").TextContent;
 
             var descriptionElements = document.QuerySelectorAll("ul.description > li");
             string barcode = descriptionElements.Where(m => m.TextContent.Contains("Штрих-код:")).FirstOrDefault().GetElementsByTagName("span").FirstOrDefault().TextContent;
+            int gipermallId;
+            bool isGipermallId = Int32.TryParse(descriptionElements.Where(m => m.TextContent.Contains("Артикул:")).FirstOrDefault().GetElementsByTagName("span").FirstOrDefault().TextContent, out gipermallId);
 
-            if (!string.IsNullOrEmpty(barcode))
+            if (!string.IsNullOrEmpty(barcode) && isGipermallId)
             {
                 try
                 {
-                    string country = descriptionElements.Where(m => m.TextContent.Contains("Страна производства:")).FirstOrDefault().GetElementsByTagName("span").FirstOrDefault().TextContent;
-                    string brand = descriptionElements.Where(m => m.TextContent.Contains("Торговая марка:")).FirstOrDefault().GetElementsByTagName("span").FirstOrDefault().TextContent;
+                    string country = null;
+                    var counrtyElement = descriptionElements.Where(m => m.TextContent.Contains("Страна производства:")).FirstOrDefault();
+                    if (counrtyElement != null)
+                         country = counrtyElement.GetElementsByTagName("span").FirstOrDefault().TextContent;
+
+                    string brand = null;
+                    var brandElement = descriptionElements.Where(m => m.TextContent.Contains("Торговая марка:")).FirstOrDefault();
+                    if (brandElement != null)
+                        brand = brandElement.GetElementsByTagName("span").FirstOrDefault().TextContent;
 
                     string proteins = null;
-                    string proteinString = document.QuerySelector("tr.property_307 > td.value").TextContent;
-                    if (proteinString != null)
-                        proteins = proteinString.Substring(0, proteinString.IndexOf(" "));
+                    var proteinsElement = document.QuerySelector("tr.property_307 > td.value");
+                    string proteinsString = proteinsElement != null ? proteinsElement.TextContent : null;
+                    if (proteinsString != null)
+                    {
+                        proteinsString = proteinsString.ToLower();
+                        proteins = proteinsString.IndexOf("г") >= 0 ? proteinsString.Substring(0, proteinsString.IndexOf("г")).Trim() : proteinsString;
+                        proteins = proteins.Replace(',', '.');
+                        proteins = Decimal.TryParse(proteins, out decimal prot) ? proteins : null;
+                    }
 
                     string fats = null;
-                    string fatString = document.QuerySelector("tr.property_308 > td.value").TextContent;
-                    if (fatString != null)
-                        fats = fatString.Substring(0, fatString.IndexOf(" "));
+                    var fatsElement = document.QuerySelector("tr.property_308 > td.value");
+                    string fatsString = fatsElement != null ? fatsElement.TextContent : null;
+                    if (fatsString != null)
+                    {
+                        fatsString = fatsString.ToLower();
+                        fats = fatsString.IndexOf("г") >= 0 ? fatsString.Substring(0, fatsString.IndexOf("г")).Trim() : fatsString;
+                        fats = fats.Replace(',', '.');
+                        fats = Decimal.TryParse(fats, out decimal prot) ? fats : null;
+                    }
 
                     string carbohydrates = null;
-                    string carbohydratesString = document.QuerySelector("tr.property_317 > td.value").TextContent;
+                    var carbohydratesElement = document.QuerySelector("tr.property_317 > td.value");
+                    string carbohydratesString = carbohydratesElement != null ? carbohydratesElement.TextContent : null;
                     if (carbohydratesString != null)
-                        carbohydrates = carbohydratesString.Substring(0, carbohydratesString.IndexOf(" "));
+                    {
+                        carbohydratesString = carbohydratesString.ToLower();
+                        carbohydrates = carbohydratesString.IndexOf("г") >= 0 ? carbohydratesString.Substring(0, carbohydratesString.IndexOf("г")).Trim() : carbohydratesString;
+                        carbohydrates = carbohydrates.Replace(',', '.');
+                        carbohydrates = Decimal.TryParse(carbohydrates, out decimal prot) ? carbohydrates : null;
+                    }
 
                     string energy = null;
-                    string energyString = document.QuerySelector("tr.property_313 > td.value").TextContent;
+                    var energyElement = document.QuerySelector("tr.property_313 > td.value");
+                    string energyString = energyElement != null ? energyElement.TextContent : null;
                     if (energyString != null)
-                        energy = energyString.Substring(0, energyString.IndexOf(" "));
+                    {
+                        energyString = energyString.ToLower();
+                        energy = energyString.IndexOf("ккал") >= 0 ? energyString.Substring(0, energyString.IndexOf("ккал")).Trim() : energyString;
+                        energy = energy.Replace(',', '.');
+                        energy = Decimal.TryParse(energy, out decimal prot) ? energy : null;
+                    }
 
                     const string sql = @"
-                        merge into ingredients_stage as Target
+                        merge into stage.ingredients as Target
                         using (select 
 	                        @barcode AS barcode,
 	                        @name AS name,
@@ -93,7 +167,8 @@ namespace Parser
 	                        @proteins AS proteins,
 	                        @fats AS fats,
 	                        @carbohydrates AS carbohydrates,
-	                        @energy AS energy) as Source
+	                        @energy AS energy,
+	                        @gipermallId AS gipermall_id) as Source
                         on (Target.barcode = Source.barcode)
                         when matched then
                             update set 
@@ -103,7 +178,8 @@ namespace Parser
 		                        Target.proteins = Source.proteins,
 		                        Target.fats = Source.fats,
 		                        Target.carbohydrates = Source.carbohydrates,
-		                        Target.energy = Source.energy
+		                        Target.energy = Source.energy,
+		                        Target.gipermall_id = Source.gipermall_id
                         when not matched by Target then
                             insert (
 	                        barcode,
@@ -113,7 +189,8 @@ namespace Parser
 	                        proteins,
 	                        fats,
 	                        carbohydrates,
-	                        energy) 
+	                        energy,
+                            gipermall_id) 
 	                        values (barcode,
 		                        name,
 		                        brand,
@@ -121,17 +198,18 @@ namespace Parser
 		                        proteins,
 		                        fats,
 		                        carbohydrates,
-		                        energy);";
+		                        energy,
+		                        gipermall_id);";
 
                     using (IDbConnection db = new SqlConnection("data source=.;Integrated Security=SSPI;Initial Catalog=food;"))
                     {
-                        db.Execute(sql, new { barcode, name, brand, country, proteins, fats, carbohydrates, energy });
+                        db.Execute(sql, new { barcode, name, brand, country, proteins, fats, carbohydrates, energy, gipermallId });
                     }
                     //conn.Execute(sql, new { myId = 999, myValue = 123 })
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Cant parse product: " + id);
+                    Console.WriteLine("Cant parse product: " + gipermallId + ". Error: " + ex.Message);
                 }
             }
         }
