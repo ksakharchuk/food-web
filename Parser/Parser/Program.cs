@@ -62,12 +62,11 @@ namespace Parser
             HtmlParser parser = new HtmlParser();
             var document = parser.Parse(html);
             var elements = document.QuerySelectorAll("div.products_card");
-            string productUrl = "";
             while (elements.Count() != 0)
             {
                 foreach (var element in elements)
                 {
-                    productUrl = element.QuerySelector("a.fancy_ajax").Attributes["href"].Value;
+                    var productUrl = element.QuerySelector("a.fancy_ajax").Attributes["href"].Value;
                     ParseGipermallArticle(productUrl);
                 }
                 iteration++;
@@ -95,27 +94,26 @@ namespace Parser
             string name = document.QuerySelector("div.template_1_columns > h1").TextContent;
 
             var descriptionElements = document.QuerySelectorAll("ul.description > li");
-            string barcode = descriptionElements.Where(m => m.TextContent.Contains("Штрих-код:")).FirstOrDefault().GetElementsByTagName("span").FirstOrDefault().TextContent;
-            int gipermallId;
-            bool isGipermallId = Int32.TryParse(descriptionElements.Where(m => m.TextContent.Contains("Артикул:")).FirstOrDefault().GetElementsByTagName("span").FirstOrDefault().TextContent, out gipermallId);
+            string barcode = descriptionElements.FirstOrDefault(m => m.TextContent.Contains("Штрих-код:"))?.GetElementsByTagName("span").FirstOrDefault()?.TextContent;
+            bool isGipermallId = Int32.TryParse(descriptionElements.FirstOrDefault(m => m.TextContent.Contains("Артикул:"))?.GetElementsByTagName("span").FirstOrDefault()?.TextContent, out var gipermallId);
 
             if (!string.IsNullOrEmpty(barcode) && isGipermallId)
             {
                 try
                 {
                     string country = null;
-                    var counrtyElement = descriptionElements.Where(m => m.TextContent.Contains("Страна производства:")).FirstOrDefault();
+                    var counrtyElement = descriptionElements.FirstOrDefault(m => m.TextContent.Contains("Страна производства:"));
                     if (counrtyElement != null)
-                         country = counrtyElement.GetElementsByTagName("span").FirstOrDefault().TextContent;
+                         country = counrtyElement.GetElementsByTagName("span").FirstOrDefault()?.TextContent;
 
                     string brand = null;
-                    var brandElement = descriptionElements.Where(m => m.TextContent.Contains("Торговая марка:")).FirstOrDefault();
+                    var brandElement = descriptionElements.FirstOrDefault(m => m.TextContent.Contains("Торговая марка:"));
                     if (brandElement != null)
-                        brand = brandElement.GetElementsByTagName("span").FirstOrDefault().TextContent;
+                        brand = brandElement.GetElementsByTagName("span").FirstOrDefault()?.TextContent;
 
                     string proteins = null;
                     var proteinsElement = document.QuerySelector("tr.property_307 > td.value");
-                    string proteinsString = proteinsElement != null ? proteinsElement.TextContent : null;
+                    string proteinsString = proteinsElement?.TextContent;
                     if (proteinsString != null)
                     {
                         proteinsString = proteinsString.ToLower();
@@ -126,7 +124,7 @@ namespace Parser
 
                     string fats = null;
                     var fatsElement = document.QuerySelector("tr.property_308 > td.value");
-                    string fatsString = fatsElement != null ? fatsElement.TextContent : null;
+                    string fatsString = fatsElement?.TextContent;
                     if (fatsString != null)
                     {
                         fatsString = fatsString.ToLower();
@@ -137,7 +135,7 @@ namespace Parser
 
                     string carbohydrates = null;
                     var carbohydratesElement = document.QuerySelector("tr.property_317 > td.value");
-                    string carbohydratesString = carbohydratesElement != null ? carbohydratesElement.TextContent : null;
+                    string carbohydratesString = carbohydratesElement?.TextContent;
                     if (carbohydratesString != null)
                     {
                         carbohydratesString = carbohydratesString.ToLower();
@@ -148,7 +146,7 @@ namespace Parser
 
                     string energy = null;
                     var energyElement = document.QuerySelector("tr.property_313 > td.value");
-                    string energyString = energyElement != null ? energyElement.TextContent : null;
+                    string energyString = energyElement?.TextContent;
                     if (energyString != null)
                     {
                         energyString = energyString.ToLower();
