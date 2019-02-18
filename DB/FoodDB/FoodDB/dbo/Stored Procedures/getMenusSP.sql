@@ -9,7 +9,7 @@ AS
     val.fats, 
     val.carbohydrates, 
     val.energy
-  FROM menus m
-    JOIN meal_periods mp ON m.meal_period_id = mp.id
+  FROM menus m WITH (NOLOCK)
+    JOIN meal_periods mp WITH (NOLOCK) ON m.meal_period_id = mp.id
     OUTER APPLY getMenuValuesFN(m.id) val
   ORDER BY service_date DESC

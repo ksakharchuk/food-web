@@ -10,6 +10,6 @@ AS
     fats AS Fats,
     carbohydrates AS Carbohydrates,
     energy AS Energy
-  FROM ingredients i
+  FROM ingredients i WITH (NOLOCK)
   WHERE id = @id OR @id = 0
   ORDER BY name
