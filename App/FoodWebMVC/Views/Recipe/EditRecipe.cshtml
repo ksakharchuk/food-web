@@ -1,0 +1,52 @@
+﻿@model FoodData.Recipe
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+<form method="post" action="">
+    <input type="hidden" value="@Model.ID" name="ID" />
+    <div class="row">
+        <div class="col-sm-2">
+            <b>Название:</b>
+        </div>
+        <div class="col-sm-5">
+            <input type="text" name="Name" value="@Model.Name" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2">
+            <b>Вес:</b>
+        </div>
+        <div class="col-sm-5">
+            <input type="text" name="Barcode" value="@Model.TotalWeight" />
+        </div>
+    </div>
+    <br />
+    <h3>Список ингредиентов</h3>
+    <div class="row">
+        <div class="col-sm-5">
+            <b>Название</b>
+        </div>
+        <div class="col-sm-1">
+            <b>Вес Ингредиента</b>
+        </div>
+    </div>
+    <div class="rows" id="details">
+        @foreach (FoodData.RecipeIngredient r in Model.Ingredients)
+        {
+            <div class="row">
+                <div class="col-sm-5">
+                    @r.IngredientID
+                </div>
+                <div class="col-sm-1">
+                    @r.IngredientWeight
+                </div>
+            </div>
+        }
+    </div>
+
+    <input type="submit" value="Сохранить" />
+</form>
+
+

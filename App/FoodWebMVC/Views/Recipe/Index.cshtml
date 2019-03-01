@@ -15,17 +15,14 @@
 
 </script>
 
-<h2>Список ингредиентов</h2>
+<h2>Список рецептов</h2>
 
 <input type="text" id="Search" placeholder="Search" />
 
-<a href="/Ingredient/Edit/0">Добавить</a>
+<a href="/Recipe/Edit/0">Добавить</a>
 <div class="row">
     <div class="col-sm-5">
         <b>Название</b>
-    </div>
-    <div class="col-sm-2">
-        <b>Штрихкод</b>
     </div>
     <div class="col-sm-1">
         <b>Б</b>
@@ -41,5 +38,5 @@
     </div>
 </div>
 <div class="rows" id="details">
-    @Html.Action("GetIngredients")
+    @Html.Action("GetRecipes")
 </div>

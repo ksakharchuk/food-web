@@ -1,15 +1,19 @@
-﻿
-CREATE PROCEDURE [dbo].[getIngredientsSP]
-@id INT = 0
+﻿CREATE PROCEDURE [dbo].[getIngredientsSP]
+    @namePattern VARCHAR(10) = NULL
 AS
-  SELECT id AS ID,
-    name AS Name,
-	barcode AS Barcode,
-    category_id AS CategoryID,
-    proteins AS Proteins,
-    fats AS Fats,
-    carbohydrates AS Carbohydrates,
-    energy AS Energy
-  FROM ingredients i WITH (NOLOCK)
-  WHERE id = @id OR @id = 0
-  ORDER BY name
+BEGIN
+    SELECT TOP 20
+        id AS ID,
+        name AS Name,
+        barcode AS Barcode,
+        category_id AS CategoryID,
+        proteins AS Proteins,
+        fats AS Fats,
+        carbohydrates AS Carbohydrates,
+        energy AS Energy
+    FROM ingredients i WITH (NOLOCK)
+    WHERE name LIKE '%' + @namePattern + '%' OR @namePattern IS NULL
+    ORDER BY name
+
+END
+GO

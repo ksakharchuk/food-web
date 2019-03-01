@@ -6,5 +6,6 @@
     [proteins]      DECIMAL (10, 2) NULL,
     [fats]          DECIMAL (10, 2) NULL,
     [carbohydrates] DECIMAL (10, 2) NULL,
-    [energy]        DECIMAL (10, 2) NULL);
+    [energy]        DECIMAL (10, 2) NULL
+);
 

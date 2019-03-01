@@ -63,12 +63,21 @@ namespace FoodData
             }
         }
 
-        public static Ingredient GetIngredientById(int id)
+        public static IEnumerable<Ingredient> GetIngredients(string namePattern)
         {
             using (IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["MainConnectionString"].ConnectionString))
             {
                 string readSp = "getIngredientsSP";
-                return db.Query<Ingredient>(readSp, new { Id = id }, commandType: CommandType.StoredProcedure).ToList().FirstOrDefault();
+                return db.Query<Ingredient>(readSp, new { namePattern = namePattern }, commandType: CommandType.StoredProcedure).ToList();
+            }
+        }
+
+        public static Ingredient GetIngredientById(int id)
+        {
+            using (IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["MainConnectionString"].ConnectionString))
+            {
+                string readSp = "getIngredientByIdSP";
+                return db.Query<Ingredient>(readSp, new { id }, commandType: CommandType.StoredProcedure).ToList().FirstOrDefault();
             }
         }
 

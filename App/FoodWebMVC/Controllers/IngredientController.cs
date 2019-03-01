@@ -12,17 +12,20 @@ namespace FoodWebMVC.Controllers
         [HttpGet]
         public ActionResult Index()
         {
-            IEnumerable<Ingredient> ingredients = Ingredient.GetIngredients();
-
-            ViewBag.Ingredients = ingredients;
-
             ViewBag.Title = "Список ингредиентов";
 
             return View();
         }
 
+        public ActionResult GetIngredients(string prefix)
+        {
+            IEnumerable<Ingredient> ingredients = Ingredient.GetIngredients(prefix);
+            
+            return PartialView(ingredients);
+        }
+
         [HttpGet]
-        public ActionResult Edit(int id)
+        public ActionResult EditIngredient(int id)
         {
             Ingredient ingredient;
             
@@ -45,10 +48,16 @@ namespace FoodWebMVC.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(Ingredient ingredient)
+        public ActionResult EditIngredient(Ingredient ingredient)
         {
             ingredient.Save();
             return RedirectToAction("Index", "Ingredient");
         }
+
+        //[HttpGet]
+        //public JsonResult Index(string prefix)
+        //{
+        //    return Json(Ingredient.GetIngredients(), JsonRequestBehavior.AllowGet);
+        //}
     }
 }

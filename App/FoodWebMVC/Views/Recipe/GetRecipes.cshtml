@@ -1,0 +1,28 @@
+﻿@model IEnumerable<FoodData.Recipe>
+
+@foreach (FoodData.Recipe r in Model)
+{
+    <div class="row">
+        <div class="col-sm-5">
+            @r.Name
+        </div>
+        <div class="col-sm-1">
+            @r.TotalWeight
+        </div>
+        <div class="col-sm-1">
+            @r.TotalProteins
+        </div>
+        <div class="col-sm-1">
+            @r.TotalFats
+        </div>
+        <div class="col-sm-1">
+            @r.TotalCarbohydrates
+        </div>
+        <div class="col-sm-1">
+            @r.TotalEnergy
+        </div>
+        <div class="col-sm-1">
+            <a href="/Recipe/EditRecipe/@r.ID">Изменить</a>
+        </div>
+    </div>
+}
