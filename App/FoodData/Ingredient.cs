@@ -65,10 +65,36 @@ namespace FoodData
 
         public static IEnumerable<Ingredient> GetIngredients(string namePattern)
         {
+            string namePattern1 = null;
+            string namePattern2 = null;
+            string namePattern3 = null;
+            string namePattern4 = null;
+            if (!String.IsNullOrEmpty(namePattern))
+            {
+                var nameParams = namePattern.Split(' ');
+
+                if (nameParams.Length > 0)
+                {
+                    namePattern1 = nameParams[0];
+                }
+                if (nameParams.Length > 1)
+                {
+                    namePattern2 = nameParams[1];
+                }
+                if (nameParams.Length > 2)
+                {
+                    namePattern3 = nameParams[2];
+                }
+                if (nameParams.Length > 3)
+                {
+                    namePattern4 = nameParams[3];
+                }
+            }
+            
             using (IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["MainConnectionString"].ConnectionString))
             {
                 string readSp = "getIngredientsSP";
-                return db.Query<Ingredient>(readSp, new { namePattern = namePattern }, commandType: CommandType.StoredProcedure).ToList();
+                return db.Query<Ingredient>(readSp, new { namePattern1, namePattern2, namePattern3, namePattern4 }, commandType: CommandType.StoredProcedure).ToList();
             }
         }
 

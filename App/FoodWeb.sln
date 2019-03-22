@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoodWebMVC", "FoodWebMVC\Fo
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "FoodDB", "..\DB\FoodDB\FoodDB\FoodDB.sqlproj", "{365BD3B9-9B86-4193-8E17-EFF034348E34}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parser", "..\Parser\Parser\Parser.csproj", "{185A726E-378B-46A2-A2E1-4DB642FDA382}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{365BD3B9-9B86-4193-8E17-EFF034348E34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{365BD3B9-9B86-4193-8E17-EFF034348E34}.Release|Any CPU.Build.0 = Release|Any CPU
 		{365BD3B9-9B86-4193-8E17-EFF034348E34}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{185A726E-378B-46A2-A2E1-4DB642FDA382}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{185A726E-378B-46A2-A2E1-4DB642FDA382}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{185A726E-378B-46A2-A2E1-4DB642FDA382}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{185A726E-378B-46A2-A2E1-4DB642FDA382}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -19,7 +19,7 @@ namespace FoodData
         public decimal TotalFats { get; set; }
         public decimal TotalCarbohydrates { get; set; }
         public decimal TotalEnergy { get; set; }
-        public IEnumerable<RecipeIngredient> Ingredients { get; set; }
+        public IList<RecipeIngredient> Ingredients { get; set; }
 
         /*
         private static readonly string[] Recipe_ColumnNames = new string[]
@@ -53,7 +53,7 @@ namespace FoodData
             }
         }
 
-        public static IEnumerable<Recipe> GetRecipes(string namePattern)
+        public static IList<Recipe> GetRecipes(string namePattern)
         {
             using (IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["MainConnectionString"].ConnectionString))
             {
@@ -70,7 +70,7 @@ namespace FoodData
                 var results = db.QueryMultiple(readSp, new { id }, commandType: CommandType.StoredProcedure);
                 var recipe = results.ReadSingle<Recipe>();
                 var ingredients = results.Read<RecipeIngredient>();
-                recipe.Ingredients = ingredients;
+                recipe.Ingredients = ingredients.ToList();
                 return recipe;
             }
         }
@@ -87,12 +87,13 @@ namespace FoodData
             {
                 dt.Rows.Add(dt.NewRow());
                 dt.Rows[j][0] = ingredient.IngredientID;
-                dt.Rows[j][0] = ingredient.IngredientWeight;
+                dt.Rows[j][1] = ingredient.IngredientWeight;
+                j++;
             }
 
             using (IDbConnection db = new SqlConnection(ConfigurationManager.ConnectionStrings["MainConnectionString"].ConnectionString))
             {
-                string saveSp = "saveRecipesSP";
+                string saveSp = "saveRecipeSP";
                 db.Execute(saveSp, new { recipe_id = ID, recipe_name = Name, recipe_total_weight = TotalWeight, ingredients = dt.AsTableValuedParameter("dbo.TRecipeIngredients") },
                     commandType: CommandType.StoredProcedure);
             }

@@ -47,13 +47,19 @@ namespace FoodWebMVC.Controllers
             ViewBag.Title = (id == 0 ? "Добавление рецепта" : "Редактирование рецепта");
 
             return View(recipe);
-        }
+        }   
 
         [HttpPost]
         public ActionResult EditRecipe(Recipe recipe)
         {
             recipe.Save();
             return RedirectToAction("Index", "Recipe");
+        }
+
+        [HttpGet]
+        public JsonResult SearchIngredient(string prefix)
+        {
+            return Json(Ingredient.GetIngredients(prefix), JsonRequestBehavior.AllowGet);
         }
     }
 }

@@ -20,23 +20,18 @@
 <input type="text" id="Search" placeholder="Search" />
 
 <a href="/Recipe/Edit/0">Добавить</a>
-<div class="row">
-    <div class="col-sm-5">
-        <b>Название</b>
-    </div>
-    <div class="col-sm-1">
-        <b>Б</b>
-    </div>
-    <div class="col-sm-1">
-        <b>Ж</b>
-    </div>
-    <div class="col-sm-1">
-        <b>У</b>
-    </div>
-    <div class="col-sm-2">
-        <b>Ккал</b>
-    </div>
-</div>
-<div class="rows" id="details">
-    @Html.Action("GetRecipes")
-</div>
+<table>
+    <thead>
+        <tr class="row">
+            <td class="col-sm-5"><b>Название</b></td>
+            <td class="col-sm-1"><b>Масса</b></td>
+            <td class="col-sm-1"><b>Б</b></td>
+            <td class="col-sm-1"><b>Ж</b></td>
+            <td class="col-sm-1"><b>У</b></td>
+            <td class="col-sm-1"><b>Ккал</b></td>
+        </tr>
+    </thead>
+    <tbody class="rows" id="details">
+        @Html.Action("GetRecipes")
+    </tbody>
+</table>

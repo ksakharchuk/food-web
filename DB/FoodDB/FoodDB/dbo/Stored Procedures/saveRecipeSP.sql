@@ -2,9 +2,8 @@
     @recipe_id              INT = 0,
     @recipe_name            NVARCHAR (256),
     @recipe_total_weight    DECIMAL (10,2),
-    @ingredients            dbo.TRecipeIngredients READONLY,
-    --@ingredients_delete dbo.TDataKeys READONLY,
-    @param2 int
+    @ingredients            dbo.TRecipeIngredients READONLY
+    --@ingredients_delete dbo.TDataKeys READONLY
 AS
     IF @recipe_id = 0
     BEGIN

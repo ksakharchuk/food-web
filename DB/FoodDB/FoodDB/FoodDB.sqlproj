@@ -67,6 +67,9 @@
     <Folder Include="stage\" />
     <Folder Include="stage\Tables\" />
     <Folder Include="Security\" />
+    <Folder Include="stage\User Defined Types" />
+    <Folder Include="stage\Stored Procedures" />
+    <Folder Include="Scripts" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\categories.sql" />
@@ -99,5 +102,10 @@
     <Build Include="dbo\Stored Procedures\getRecipeByIdSP.sql" />
     <Build Include="dbo\Stored Procedures\getRecipesSP.sql" />
     <Build Include="dbo\Stored Procedures\getIngredientByIdSP.sql" />
+    <Build Include="stage\Stored Procedures\saveEvrooptItemsSP.sql" />
+    <Build Include="stage\User Defined Types\TEvroopItems.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\MergeIngredients.sql" />
   </ItemGroup>
 </Project>

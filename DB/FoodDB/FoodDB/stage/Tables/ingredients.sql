@@ -8,6 +8,7 @@
     [fats]              DECIMAL (10, 2) NULL,
     [carbohydrates]     DECIMAL (10, 2) NULL,
     [energy]            DECIMAL (10, 2) NULL,
+    [energy_string]     NVARCHAR (256)  NULL,
     [gipermall_id]      INT             NULL,
     [gipermall_price]   DECIMAL (10, 2) NULL,
     [edostavka_id]      INT             NULL,

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AngleSharp.Extensions;
 using AngleSharp.Html;
@@ -16,14 +17,18 @@ namespace Parser
 {
     class Program
     {
+        private static int _itemCount = 0;
+
         static void Main(string[] args)
         {
             //ParseGipermallCategory(400000276);
             //ParseGipermallArticle(36361);
 
-            ParseEdostavkaCategory(400000172);
+            //ParseEdostavkaArticle(693955);
+            ParseEdostavkaCategory(400000175);
+            //ParseEdostavkaCategory(400000179);  //626
 
-            Console.Write("Parsing finished. ");
+            Console.Write("Parsing finished. {0} items processed.", _itemCount);
             var name = Console.ReadLine();
         }
 
@@ -251,12 +256,24 @@ namespace Parser
             HtmlParser parser = new HtmlParser();
             var document = parser.Parse(html);
             var elements = document.QuerySelectorAll("div.products_card");
+            List<EvrooptItem> items = new List<EvrooptItem>();
+            EvrooptItem item = new EvrooptItem();
             while (elements.Count() != 0)
             {
                 foreach (var element in elements)
                 {
                     var productUrl = element.QuerySelector("a.fancy_ajax").Attributes["href"].Value;
-                    ParseEdostavkaArticle(productUrl);
+                    item = ParseEdostavkaArticle(productUrl);
+                    if (item.Barcode != null)
+                    {
+                        items.Add(item);
+                    }
+
+                    if (items.Count == 50)
+                    {
+                        EvrooptItem.Save(items);
+                        items.Clear();
+                    }
                 }
                 iteration++;
                 html = GetResponseHtml(categoryUrl + "?lazy_steep=" + iteration);
@@ -266,8 +283,16 @@ namespace Parser
             }
 
         }
-        static void ParseEdostavkaArticle(string url)
+
+        static void ParseEdostavkaArticle(int id)
         {
+            string url = "https://e-dostavka.by/catalog/item_" + id + ".html";
+            ParseEdostavkaArticle(url);
+        }
+        static EvrooptItem ParseEdostavkaArticle(string url)
+        {
+            EvrooptItem item = new EvrooptItem();
+
             string html = GetResponseHtml(url);
 
             HtmlParser parser = new HtmlParser();
@@ -336,25 +361,23 @@ namespace Parser
                     string energyString = energyElement?.TextContent;
                     if (energyString != null)
                     {
-                        energyString = energyString.ToLower();
-                        energy = energyString.IndexOf("ккал") >= 0 ? energyString.Substring(0, energyString.IndexOf("ккал")).Trim() : energyString;
-                        energy = energy.Replace(',', '.');
-                        energy = Decimal.TryParse(energy, out o) ? energy : null;
-                        if (energy == null)
+                        energyString = energyString.ToLower().Trim();
+                        int calIdx = energyString.IndexOf("ккал");
+                        if (calIdx <= 0)
+                            calIdx = energyString.IndexOf("кал");
+
+                        if (calIdx > 0)
                         {
-                            energy = energyString.IndexOf("калл") >= 0 ? energyString.Substring(0, energyString.IndexOf("калл")).Trim() : energyString;
+                            energy = Regex.Match(energyString.Substring(0, calIdx).Trim(), @"\d+$").Value;
                             energy = energy.Replace(',', '.');
                             energy = Decimal.TryParse(energy, out o) ? energy : null;
                         }
-
-                        if (energy == null)
+                        else
                         {
-                            energy = energyString.IndexOf("ккал") >= 0 ? energyString.Substring(energyString.IndexOf("/") + 1, energyString.IndexOf("ккал") - energyString.IndexOf("/") - 1).Trim() : energyString;
-                            energy = energy.Replace(',', '.');
-                            energy = Decimal.TryParse(energy, out o) ? energy : null;
+                            energy = null;
                         }
                     }
-
+/*
                     const string sql = @"
                         merge into stage.ingredients as Target
                         using (select 
@@ -366,6 +389,7 @@ namespace Parser
 	                        @fats AS fats,
 	                        @carbohydrates AS carbohydrates,
 	                        @energy AS energy,
+	                        @energyString AS energy_string,
 	                        @edostavkaId AS edostavka_id,
 	                        @edostavkaPrice AS edostavka_price) as Source
                         on (Target.barcode = Source.barcode)
@@ -378,6 +402,7 @@ namespace Parser
 		                        Target.fats = ISNULL(Target.fats, Source.fats),
 		                        Target.carbohydrates = ISNULL(Target.carbohydrates, Source.carbohydrates),
 		                        Target.energy = ISNULL(Target.energy, Source.energy),
+		                        Target.energy_string = ISNULL(Target.energy_string, Source.energy_string),
 		                        Target.edostavka_id = Source.edostavka_id,
 		                        Target.edostavka_price = Source.edostavka_price
                         when not matched by Target then
@@ -390,6 +415,7 @@ namespace Parser
 	                        fats,
 	                        carbohydrates,
 	                        energy,
+	                        energy_string,
                             edostavka_id,
                             edostavka_price) 
 	                        values (barcode,
@@ -400,20 +426,39 @@ namespace Parser
 		                        fats,
 		                        carbohydrates,
 		                        energy,
+	                            energy_string,
 		                        edostavka_id,
                                 edostavka_price);";
 
                     using (IDbConnection db = new SqlConnection("data source=.;Integrated Security=SSPI;Initial Catalog=food;"))
                     {
-                        db.Execute(sql, new { barcode, name, brand, country, proteins, fats, carbohydrates, energy, edostavkaId, edostavkaPrice });
+                        db.Execute(sql, new { barcode, name, brand, country, proteins, fats, carbohydrates, energy, energyString, edostavkaId, edostavkaPrice });
                     }
                     //conn.Execute(sql, new { myId = 999, myValue = 123 })
+
+                    */
+
+                    item.Barcode = barcode;
+                    item.Name = name;
+                    item.Brand = brand;
+                    item.Proteins = proteins;
+                    item.Fats = fats;
+                    item.Carbohydrates = carbohydrates;
+                    item.Energy = energy;
+                    item.EnergyString = energyString;
+                    item.ArticleId = edostavkaId;
+                    item.ArticlePrice = edostavkaPrice;
+
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Cant parse product: " + edostavkaId + ". Error: " + ex.Message);
                 }
             }
+
+            _itemCount++;
+
+            return item;
         }
 
     }
